@@ -5,11 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Secure Access | Shwari Payroll</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/otpauth/9.1.4/otpauth.umd.min.js"></script>
+    
     <style>
         :root {
             --saf-green: #43B02A;
             --saf-dark: #002b13;
             --glass: rgba(255, 255, 255, 0.15);
+            --error: #ff4444;
         }
 
         body, html { 
@@ -22,7 +25,7 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* BACKGROUND VIDEO */
+        /* VIDEO BACKGROUND */
         #bg-video {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             object-fit: cover; z-index: 1; opacity: 0; transition: opacity 0.5s ease;
@@ -36,6 +39,57 @@
             backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
         }
 
+        /* AUTH SCREEN */
+        #auth-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100dvh;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            z-index: 1000;
+            background: var(--saf-dark);
+            transition: transform 0.4s ease-in;
+        }
+
+        .auth-card {
+            background: var(--glass);
+            padding: 40px 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(15px);
+            text-align: center;
+            width: 85%; max-width: 320px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        .auth-icon { font-size: 3rem; color: var(--saf-green); margin-bottom: 20px; }
+        
+        .auth-title {
+            color: white; font-size: 1.2rem; font-weight: 600; margin-bottom: 20px;
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+
+        .auth-input {
+            width: 100%; padding: 15px; border-radius: 10px;
+            border: 2px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.3); color: white;
+            font-size: 1.5rem; text-align: center; letter-spacing: 5px;
+            outline: none; margin-bottom: 20px; transition: border-color 0.3s;
+            box-sizing: border-box;
+        }
+        .auth-input:focus { border-color: var(--saf-green); }
+
+        .auth-btn {
+            width: 100%; padding: 15px; border-radius: 10px;
+            border: none; background: var(--saf-green); color: white;
+            font-weight: bold; font-size: 1rem; cursor: pointer;
+            text-transform: uppercase; box-shadow: 0 5px 15px rgba(67, 176, 42, 0.4);
+            transition: transform 0.2s;
+        }
+        .auth-btn:active { transform: scale(0.98); }
+
+        .auth-error {
+            color: var(--error); font-size: 0.9rem; margin-top: 15px;
+            min-height: 1.2rem; opacity: 0; transition: opacity 0.3s;
+        }
+
         /* LOADER */
         #loader-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100dvh;
@@ -44,8 +98,8 @@
             transform: translate3d(0,0,0);
             transition: transform 0.25s cubic-bezier(0.1, 0.9, 0.2, 1), opacity 0.2s ease;
             will-change: transform, opacity;
+            visibility: hidden; opacity: 0;
         }
-
         .loader-card {
             text-align: center; padding: 30px; border-radius: 20px;
             background: var(--glass); border: 1px solid rgba(255,255,255,0.2);
@@ -53,55 +107,20 @@
             width: 85%; max-width: 340px;
             backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
         }
-
         .brand-logo {
             font-size: 3rem; color: var(--saf-green); margin-bottom: 10px;
             filter: drop-shadow(0 0 15px rgba(67, 176, 42, 0.5));
             animation: pulse 1.5s infinite ease-in-out;
         }
-
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.08); opacity: 0.9; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        .brand-name {
-            color: white; font-size: 1.5rem; font-weight: 800;
-            letter-spacing: 1.5px; margin-bottom: 25px; text-transform: uppercase;
-        }
-
-        /* PROGRESS BAR */
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.08); } 100% { transform: scale(1); } }
+        .brand-name { color: white; font-size: 1.5rem; font-weight: 800; letter-spacing: 1.5px; margin-bottom: 25px; text-transform: uppercase; }
         .progress-box { width: 100%; margin: 15px 0; }
-        .progress-track {
-            width: 100%; height: 4px; background: rgba(255,255,255,0.15);
-            border-radius: 10px; overflow: hidden;
-        }
-        #progress-fill {
-            height: 100%; width: 0%; 
-            background: linear-gradient(90deg, #43B02A, #89ff70);
-            box-shadow: 0 0 15px rgba(67, 176, 42, 0.6);
-            /* Smooth transition for the linear 5s fill */
-            transition: width 0.05s linear; 
-        }
-        .percentage {
-            color: var(--saf-green); font-weight: 700; font-size: 1.2rem;
-            margin-top: 8px; display: block;
-        }
-        .status-msg {
-            color: rgba(255,255,255,0.8); font-size: 0.85rem;
-            margin-top: 5px; height: 1.2rem; font-weight: 400;
-            white-space: nowrap; 
-        }
-
-        .disclaimer-box {
-            position: absolute; bottom: 30px;
-            font-size: 10px; color: rgba(255,255,255,0.5);
-            text-align: center; width: 100%; line-height: 1.4;
-        }
-        .disclaimer-highlight {
-            color: var(--saf-green); font-weight: 700; letter-spacing: 1px;
-        }
+        .progress-track { width: 100%; height: 4px; background: rgba(255,255,255,0.15); border-radius: 10px; overflow: hidden; }
+        #progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #43B02A, #89ff70); box-shadow: 0 0 15px rgba(67, 176, 42, 0.6); transition: width 0.05s linear; }
+        .percentage { color: var(--saf-green); font-weight: 700; font-size: 1.2rem; margin-top: 8px; display: block; }
+        .status-msg { color: rgba(255,255,255,0.8); font-size: 0.85rem; margin-top: 5px; height: 1.2rem; font-weight: 400; white-space: nowrap; }
+        .disclaimer-box { position: absolute; bottom: 30px; font-size: 10px; color: rgba(255,255,255,0.5); text-align: center; width: 100%; line-height: 1.4; }
+        .disclaimer-highlight { color: var(--saf-green); font-weight: 700; letter-spacing: 1px; }
 
         /* APP CONTAINER */
         .app-container {
@@ -110,50 +129,49 @@
             transition: opacity 0.3s ease, transform 0.3s ease;
             pointer-events: none; -webkit-overflow-scrolling: touch; 
         }
-
         iframe { width: 100%; height: 100%; border: none; background: #fff; }
 
-        /* INSTANT EXIT STATE */
-        .loaded #loader-screen { transform: translateY(-100%) translate3d(0,0,0); opacity: 0; pointer-events: none; }
-        .loaded .app-container { opacity: 1; transform: scale(1) translate3d(0,0,0); pointer-events: all; }
+        .loaded #loader-screen { transform: translateY(-100%); opacity: 0; pointer-events: none; }
+        .loaded .app-container { opacity: 1; transform: scale(1); pointer-events: all; }
 
-        /* --- TOAST NOTIFICATION STYLES --- */
+        /* TOAST */
         .toast-container {
-            position: fixed; top: 20px; left: 50%;
-            transform: translateX(-50%);
-            z-index: 9999; 
-            display: flex; flex-direction: column; gap: 10px;
-            pointer-events: none; 
-            width: 90%; max-width: 350px;
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 9999; display: flex; flex-direction: column; gap: 10px;
+            pointer-events: none; width: 90%; max-width: 350px;
         }
-
         .toast {
-            background: rgba(0, 43, 19, 0.95);
-            color: white;
-            padding: 12px 20px;
-            border-radius: 50px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            display: flex; align-items: center; gap: 12px;
-            font-size: 0.95rem; font-weight: 500;
-            border: 1px solid rgba(67, 176, 42, 0.3);
-            backdrop-filter: blur(8px);
-            opacity: 0; transform: translateY(-20px);
-            transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+            background: rgba(0, 43, 19, 0.95); color: white; padding: 12px 20px;
+            border-radius: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex; align-items: center; gap: 12px; font-size: 0.95rem; font-weight: 500;
+            border: 1px solid rgba(67, 176, 42, 0.3); backdrop-filter: blur(8px);
+            opacity: 0; transform: translateY(-20px); transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
         }
-
         .toast.show { opacity: 1; transform: translateY(0); }
         .toast i { color: var(--saf-green); font-size: 1.1rem; }
-
     </style>
 </head>
 <body>
 
     <div class="toast-container" id="toast-wrapper"></div>
 
-    <video autoplay muted loop playsinline preload="auto" id="bg-video">
+    <video muted loop playsinline preload="auto" id="bg-video">
         <source src="https://v.ftcdn.net/02/21/06/61/700_F_221066170_ktt9WcxAOvbTc3iSEBGJjGY0NwfK3D8d_ST.mp4" type="video/mp4">
     </video>
     <div class="video-overlay"></div>
+
+    <div id="auth-screen">
+        <div class="auth-card">
+            <div class="auth-icon"><i class="fas fa-lock"></i></div>
+            <div class="auth-title">Shwari Security</div>
+            <p style="color:rgba(255,255,255,0.7); font-size: 0.9rem; margin-bottom: 20px;">Enter Google Authenticator Code</p>
+            
+            <input type="tel" id="totp-input" class="auth-input" placeholder="000 000" maxlength="6" autocomplete="one-time-code">
+            <button class="auth-btn" onclick="verifyCode()">Verify Identity</button>
+            <div class="auth-error" id="auth-error">Invalid Code</div>
+            
+            </div>
+    </div>
 
     <div id="loader-screen">
         <div class="loader-card">
@@ -173,92 +191,109 @@
 
     <div class="app-container" id="app-wrapper">
         <iframe 
-            src="https://script.google.com/macros/s/AKfycbw9YK4cm3UEZYBkF1EJgInXbL5aE4lKTtBoZqKA31ZTm7Aq1cVrtA7R1pJeDp1_RTOjvA/exec"
+            src="https://script.google.com/macros/s/AKfycbxs9rYWBfIWNX4QYtyyi9EXXnYaPXPYs-pJTrzfH4k3nXqkTJd0X02YAqMZf4ghqY9OHw/exec"
             allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
             allowfullscreen>
         </iframe>
     </div>
 
     <script>
-        // 1. VIDEO
-        document.addEventListener('DOMContentLoaded', () => {
-            const video = document.getElementById('bg-video');
-            if(video) {
-                video.play().then(() => video.classList.add('video-ready')).catch(e => {});
-            }
-        });
-
-        // 2. TIMED LOADER (EXACTLY 5 SECONDS)
-        let progress = 0;
-        const fill = document.getElementById('progress-fill');
-        const text = document.getElementById('percent-text');
-        const status = document.getElementById('status-msg');
+        // --- FINAL CONFIGURATION (SAME AS BEFORE) ---
+        const SECRET_KEY = "HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ"; 
         
-        // 5000ms total / 50ms interval = 100 steps
-        // 100% / 100 steps = 1% per step
-        const TOTAL_DURATION = 5000;
-        const INTERVAL_TIME = 50;
-        const INCREMENT = 1; 
+        const authScreen = document.getElementById('auth-screen');
+        const authError = document.getElementById('auth-error');
+        const loaderScreen = document.getElementById('loader-screen');
+        const video = document.getElementById('bg-video');
 
-        const timer = setInterval(() => {
-            if (progress >= 100) {
-                clearInterval(timer);
-                completeLoading();
-            } else {
-                progress += INCREMENT;
-                updateUI(progress);
+        function verifyCode() {
+            const userCode = document.getElementById('totp-input').value.replace(/\D/g, '');
+            
+            if (userCode.length !== 6) {
+                showError("Enter 6 digits");
+                return;
             }
-        }, INTERVAL_TIME);
 
-        function updateUI(val) {
-            let p = Math.floor(val);
-            fill.style.width = p + "%";
-            text.innerText = p + "%";
+            const totp = new OTPAuth.TOTP({
+                issuer: "ShwariPayroll",
+                label: "Shwari:Finance",
+                algorithm: "SHA1",
+                digits: 6,
+                period: 30,
+                secret: OTPAuth.Secret.fromBase32(SECRET_KEY) 
+            });
 
-            // --- TEXT CYCLE LOGIC (Synced to 5s) ---
-            // 0-1.25s
-            if (p < 25) {
-                status.innerText = "Establishing connection...";
-            } 
-            // 1.25s-2.5s
-            else if (p < 50) {
-                status.innerText = "Linking database...";
-            } 
-            // 2.5s-3.75s
-            else if (p < 75) {
-                status.innerText = "Scanning Google Sheets...";
-            } 
-            // 3.75s-5s
-            else {
-                status.innerText = "Analysis of Employee's Accounts...";
+            // High Tolerance enabled (Window 20 = +/- 10 mins)
+            const delta = totp.validate({ token: userCode, window: 20 });
+
+            if (delta !== null) {
+                authScreen.style.transform = "translateY(-100%)";
+                loaderScreen.style.visibility = "visible";
+                loaderScreen.style.opacity = "1";
+                startLoader(); 
+            } else {
+                showError("Access Denied: Invalid Code");
+                if (navigator.vibrate) navigator.vibrate(200);
             }
         }
 
-        // 3. EXIT TRIGGER (Runs when timer hits 100%)
-        function completeLoading() {
+        function showError(msg) {
+            authError.innerText = msg;
+            authError.style.opacity = "1";
+            document.getElementById('totp-input').value = "";
+            document.getElementById('totp-input').focus();
+        }
+
+        document.getElementById('totp-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') verifyCode();
+        });
+
+        // LOADER LOGIC
+        function startLoader() {
+            if(video) video.play().then(() => video.classList.add('video-ready')).catch(e => {});
+
+            let progress = 0;
+            const fill = document.getElementById('progress-fill');
+            const text = document.getElementById('percent-text');
+            const status = document.getElementById('status-msg');
+            
+            const timer = setInterval(() => {
+                if (progress >= 100) {
+                    clearInterval(timer);
+                    completeLoading(status, fill, text);
+                } else {
+                    progress += 1;
+                    updateUI(progress, fill, text, status);
+                }
+            }, 50);
+        }
+
+        function updateUI(p, fill, text, status) {
+            fill.style.width = p + "%";
+            text.innerText = p + "%";
+            if (p < 25) status.innerText = "Establishing connection...";
+            else if (p < 50) status.innerText = "Linking database...";
+            else if (p < 75) status.innerText = "Scanning Google Sheets...";
+            else status.innerText = "Analysis of Employee's Accounts...";
+        }
+
+        function completeLoading(status, fill, text) {
             status.innerText = "Access Granted";
             fill.style.width = "100%";
             text.innerText = "100%";
-
             requestAnimationFrame(() => {
                 document.body.classList.add('loaded');
-                setTimeout(() => showToast('Welcome back', 'user'), 600);
+                setTimeout(() => showToast('Welcome back, Emilio', 'user'), 600);
             });
         }
 
-        // 4. TOAST FUNCTION
         function showToast(message, iconName) {
             const container = document.getElementById('toast-wrapper');
             const toast = document.createElement('div');
             toast.className = 'toast';
             toast.innerHTML = `<i class="fas fa-${iconName}-circle"></i> ${message}`;
-            
             container.appendChild(toast);
-
-            requestAnimationFrame(() => {
-                toast.classList.add('show');
-            });
-
+            requestAnimationFrame(() => toast.classList.add('show'));
             setTimeout(() => {
                 toast.classList.remove('show');
                 setTimeout(() => toast.remove(), 500); 
