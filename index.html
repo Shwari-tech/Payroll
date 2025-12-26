@@ -3,157 +3,237 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Secure Access | Shwari Payroll</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Secure Access | Shwari Finance</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/otpauth/9.1.4/otpauth.umd.min.js"></script>
     
     <style>
         :root {
-            --saf-green: #43B02A;
-            --saf-dark: #002b13;
-            --glass: rgba(255, 255, 255, 0.15);
-            --error: #ff4444;
+            /* --- PRO COLOR PALETTE --- */
+            --primary: #00f2ff;       /* Electric Cyan */
+            --primary-dim: rgba(0, 242, 255, 0.1);
+            --secondary: #0061ff;     /* Royal Blue */
+            --bg-deep: #02040a;       /* Void Black/Blue */
+            --card-bg: rgba(12, 20, 35, 0.6);
+            --border-light: rgba(255, 255, 255, 0.08);
+            --text-white: #ffffff;
+            --text-gray: rgba(255, 255, 255, 0.5);
+            --error: #ff3333;
         }
 
         body, html { 
             margin: 0; padding: 0; 
             height: 100dvh; width: 100%; 
             overflow: hidden; 
-            background-color: var(--saf-dark);
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            overscroll-behavior: none;
-            -webkit-tap-highlight-color: transparent;
+            background-color: var(--bg-deep);
+            font-family: 'Poppins', sans-serif;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* VIDEO BACKGROUND */
+        /* --- VIDEO BACKGROUND WITH CINEMATIC GRADE --- */
         #bg-video {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            object-fit: cover; z-index: 1; opacity: 0; transition: opacity 0.5s ease;
+            object-fit: cover; z-index: 0; 
+            opacity: 0; transition: opacity 1.5s ease;
+            filter: contrast(1.2) brightness(0.7) hue-rotate(10deg);
         }
         #bg-video.video-ready { opacity: 1; }
 
         .video-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, rgba(0, 43, 19, 0.9), rgba(0,0,0,0.8));
-            z-index: 2;
-            backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
+            /* Vignette Effect */
+            background: radial-gradient(circle at center, rgba(2, 4, 10, 0.5) 0%, rgba(2, 4, 10, 1) 90%);
+            z-index: 1;
+            backdrop-filter: blur(5px);
         }
 
-        /* AUTH SCREEN */
+        /* --- 3D FLOATING CARD --- */
         #auth-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100dvh;
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            z-index: 1000;
-            background: var(--saf-dark);
-            transition: transform 0.4s ease-in;
+            z-index: 100;
+            perspective: 1000px; /* For 3D feel */
+            transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
-        .auth-card {
-            background: var(--glass);
-            padding: 40px 30px;
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.2);
-            backdrop-filter: blur(15px);
+        .glass-card {
+            background: var(--card-bg);
+            padding: 50px 40px;
+            border-radius: 24px;
+            /* Premium Border */
+            border: 1px solid var(--border-light);
+            border-top: 1px solid rgba(255,255,255,0.15);
+            /* Deep Shadows */
+            box-shadow: 
+                0 0 0 1px rgba(0,0,0,0.2), 
+                0 40px 80px rgba(0,0,0,0.6),
+                inset 0 0 40px rgba(255,255,255,0.02);
+            backdrop-filter: blur(25px) saturate(180%);
+            -webkit-backdrop-filter: blur(25px) saturate(180%);
             text-align: center;
-            width: 85%; max-width: 320px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            width: 85%; max-width: 380px;
+            
+            /* Floating Animation */
+            animation: float 6s ease-in-out infinite;
         }
 
-        .auth-icon { font-size: 3rem; color: var(--saf-green); margin-bottom: 20px; }
+        @keyframes float { 
+            0%, 100% { transform: translateY(0) rotateX(0); } 
+            50% { transform: translateY(-10px) rotateX(2deg); } 
+        }
+
+        /* --- BRANDING --- */
+        .icon-wrapper {
+            width: 80px; height: 80px;
+            margin: 0 auto 25px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(0,97,255,0.2), rgba(0,242,255,0.1));
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid rgba(0,242,255,0.3);
+            box-shadow: 0 0 40px var(--primary-dim);
+        }
+        .icon-wrapper i { font-size: 2rem; color: var(--primary); }
+
+        .auth-header h1 {
+            color: var(--text-white); font-size: 1.5rem; font-weight: 700; 
+            margin: 0 0 5px 0; letter-spacing: 1px;
+        }
+        .auth-header p {
+            color: var(--text-gray); font-size: 0.9rem; font-weight: 400; 
+            margin: 0 0 35px 0;
+        }
+
+        /* --- PRO INPUT FIELD --- */
+        .input-container { position: relative; margin-bottom: 25px; }
         
-        .auth-title {
-            color: white; font-size: 1.2rem; font-weight: 600; margin-bottom: 20px;
+        .code-input {
+            width: 100%; padding: 18px;
+            background: rgba(0,0,0,0.3);
+            border: 2px solid var(--border-light);
+            border-radius: 14px;
+            color: var(--primary);
+            font-family: 'Poppins', monospace; /* Monospace for alignment */
+            font-size: 1.8rem; font-weight: 600;
+            text-align: center; letter-spacing: 12px;
+            outline: none; box-sizing: border-box;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        .code-input::placeholder { 
+            color: rgba(255,255,255,0.1); font-size: 1.2rem; letter-spacing: 2px; font-weight: 400;
+        }
+        
+        .code-input:focus {
+            background: rgba(0,0,0,0.5);
+            border-color: var(--primary);
+            box-shadow: 0 0 30px rgba(0, 242, 255, 0.2);
+            transform: scale(1.02);
+        }
+
+        /* --- GRADIENT BUTTON --- */
+        .action-btn {
+            width: 100%; padding: 18px;
+            border-radius: 14px; border: none;
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+            color: #000;
+            font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 1rem;
             text-transform: uppercase; letter-spacing: 1px;
+            cursor: pointer; position: relative; overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 97, 255, 0.3);
+            transition: all 0.3s ease;
         }
 
-        .auth-input {
-            width: 100%; padding: 15px; border-radius: 10px;
-            border: 2px solid rgba(255,255,255,0.1);
-            background: rgba(0,0,0,0.3); color: white;
-            font-size: 1.5rem; text-align: center; letter-spacing: 5px;
-            outline: none; margin-bottom: 20px; transition: border-color 0.3s;
-            box-sizing: border-box;
+        .action-btn:hover {
+            box-shadow: 0 15px 35px rgba(0, 242, 255, 0.4);
+            transform: translateY(-2px);
         }
-        .auth-input:focus { border-color: var(--saf-green); }
-
-        .auth-btn {
-            width: 100%; padding: 15px; border-radius: 10px;
-            border: none; background: var(--saf-green); color: white;
-            font-weight: bold; font-size: 1rem; cursor: pointer;
-            text-transform: uppercase; box-shadow: 0 5px 15px rgba(67, 176, 42, 0.4);
-            transition: transform 0.2s;
+        
+        /* Button Shimmer Overlay */
+        .action-btn::after {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: 0.5s;
         }
-        .auth-btn:active { transform: scale(0.98); }
+        .action-btn:hover::after { left: 100%; }
 
-        .auth-error {
-            color: var(--error); font-size: 0.9rem; margin-top: 15px;
-            min-height: 1.2rem; opacity: 0; transition: opacity 0.3s;
+        .error-msg {
+            color: var(--error); font-size: 0.85rem; margin-top: 15px; font-weight: 500;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            opacity: 0; transition: opacity 0.3s; min-height: 20px;
         }
 
-        /* LOADER */
+        /* --- LOADER --- */
         #loader-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100dvh;
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            z-index: 999;
-            transform: translate3d(0,0,0);
-            transition: transform 0.25s cubic-bezier(0.1, 0.9, 0.2, 1), opacity 0.2s ease;
-            will-change: transform, opacity;
-            visibility: hidden; opacity: 0;
+            z-index: 90; visibility: hidden; opacity: 0;
+            transition: opacity 0.5s ease;
         }
-        .loader-card {
-            text-align: center; padding: 30px; border-radius: 20px;
-            background: var(--glass); border: 1px solid rgba(255,255,255,0.2);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4); 
-            width: 85%; max-width: 340px;
-            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+        
+        .spinner-container { position: relative; width: 80px; height: 80px; margin-bottom: 30px; }
+        
+        .circle-spin {
+            width: 100%; height: 100%; border-radius: 50%;
+            border: 3px solid transparent;
+            border-top-color: var(--primary);
+            animation: spin 1s linear infinite;
         }
-        .brand-logo {
-            font-size: 3rem; color: var(--saf-green); margin-bottom: 10px;
-            filter: drop-shadow(0 0 15px rgba(67, 176, 42, 0.5));
-            animation: pulse 1.5s infinite ease-in-out;
+        .circle-spin::before {
+            content: ""; position: absolute; top: 5px; left: 5px; right: 5px; bottom: 5px;
+            border-radius: 50%; border: 3px solid transparent;
+            border-top-color: var(--secondary);
+            animation: spin 2s linear infinite reverse;
         }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.08); } 100% { transform: scale(1); } }
-        .brand-name { color: white; font-size: 1.5rem; font-weight: 800; letter-spacing: 1.5px; margin-bottom: 25px; text-transform: uppercase; }
-        .progress-box { width: 100%; margin: 15px 0; }
-        .progress-track { width: 100%; height: 4px; background: rgba(255,255,255,0.15); border-radius: 10px; overflow: hidden; }
-        #progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #43B02A, #89ff70); box-shadow: 0 0 15px rgba(67, 176, 42, 0.6); transition: width 0.05s linear; }
-        .percentage { color: var(--saf-green); font-weight: 700; font-size: 1.2rem; margin-top: 8px; display: block; }
-        .status-msg { color: rgba(255,255,255,0.8); font-size: 0.85rem; margin-top: 5px; height: 1.2rem; font-weight: 400; white-space: nowrap; }
-        .disclaimer-box { position: absolute; bottom: 30px; font-size: 10px; color: rgba(255,255,255,0.5); text-align: center; width: 100%; line-height: 1.4; }
-        .disclaimer-highlight { color: var(--saf-green); font-weight: 700; letter-spacing: 1px; }
+        @keyframes spin { 0% {transform: rotate(0deg);} 100% {transform: rotate(360deg);} }
 
-        /* APP CONTAINER */
-        .app-container {
+        .loader-text { color: white; font-size: 1.2rem; font-weight: 600; letter-spacing: 1px; }
+        .loader-sub { color: var(--text-gray); font-size: 0.8rem; margin-top: 8px; font-family: monospace; }
+
+        /* --- APP WRAPPER --- */
+        .app-wrapper {
             position: fixed; top: 0; left: 0; width: 100%; height: 100dvh;
-            z-index: 10; opacity: 0; transform: scale(1.02);
-            transition: opacity 0.3s ease, transform 0.3s ease;
-            pointer-events: none; -webkit-overflow-scrolling: touch; 
+            z-index: 50; opacity: 0; transform: scale(0.95);
+            transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+            pointer-events: none; background: white;
         }
-        iframe { width: 100%; height: 100%; border: none; background: #fff; }
+        .loaded .app-wrapper { opacity: 1; transform: scale(1); pointer-events: all; }
+        iframe { width: 100%; height: 100%; border: none; }
 
-        .loaded #loader-screen { transform: translateY(-100%); opacity: 0; pointer-events: none; }
-        .loaded .app-container { opacity: 1; transform: scale(1); pointer-events: all; }
-
-        /* TOAST */
-        .toast-container {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+        /* --- TOAST NOTIFICATIONS --- */
+        .toast-box {
+            position: fixed; top: 25px; left: 50%; transform: translateX(-50%);
             z-index: 9999; display: flex; flex-direction: column; gap: 10px;
-            pointer-events: none; width: 90%; max-width: 350px;
         }
         .toast {
-            background: rgba(0, 43, 19, 0.95); color: white; padding: 12px 20px;
-            border-radius: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            display: flex; align-items: center; gap: 12px; font-size: 0.95rem; font-weight: 500;
-            border: 1px solid rgba(67, 176, 42, 0.3); backdrop-filter: blur(8px);
-            opacity: 0; transform: translateY(-20px); transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+            background: rgba(5, 10, 20, 0.95);
+            color: white; padding: 12px 24px; border-radius: 50px;
+            border: 1px solid rgba(0, 242, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex; align-items: center; gap: 12px; font-size: 0.9rem; font-weight: 500;
+            opacity: 0; transform: translateY(-20px); transition: all 0.4s ease;
         }
-        .toast.show { opacity: 1; transform: translateY(0); }
-        .toast i { color: var(--saf-green); font-size: 1.1rem; }
+        .toast.visible { opacity: 1; transform: translateY(0); }
+        .toast i { color: var(--primary); }
+
+        /* --- ANIMATIONS --- */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-10px); }
+            40% { transform: translateX(10px); }
+            60% { transform: translateX(-5px); }
+            80% { transform: translateX(5px); }
+        }
+        .shake-it { animation: shake 0.4s ease-in-out; border-color: var(--error) !important; }
     </style>
 </head>
 <body>
 
-    <div class="toast-container" id="toast-wrapper"></div>
+    <div class="toast-box" id="toast-container"></div>
 
     <video muted loop playsinline preload="auto" id="bg-video">
         <source src="https://v.ftcdn.net/02/21/06/61/700_F_221066170_ktt9WcxAOvbTc3iSEBGJjGY0NwfK3D8d_ST.mp4" type="video/mp4">
@@ -161,35 +241,38 @@
     <div class="video-overlay"></div>
 
     <div id="auth-screen">
-        <div class="auth-card">
-            <div class="auth-icon"><i class="fas fa-lock"></i></div>
-            <div class="auth-title">Shwari Security</div>
-            <p style="color:rgba(255,255,255,0.7); font-size: 0.9rem; margin-bottom: 20px;">Enter Google Authenticator Code</p>
-            
-            <input type="tel" id="totp-input" class="auth-input" placeholder="000 000" maxlength="6" autocomplete="one-time-code">
-            <button class="auth-btn" onclick="verifyCode()">Verify Identity</button>
-            <div class="auth-error" id="auth-error">Invalid Code</div>
-            
+        <div class="glass-card">
+            <div class="icon-wrapper">
+                <i class="fas fa-shield-cat"></i>
             </div>
+            <div class="auth-header">
+                <h1>SHWARI FINANCE</h1>
+                <p>Secure Payroll Gateway</p>
+            </div>
+            
+            <div class="input-container">
+                <input type="tel" id="totp-input" class="code-input" placeholder="000 000" maxlength="6" autocomplete="one-time-code">
+            </div>
+            
+            <button class="action-btn" onclick="verifyCode()">
+                Authenticate <i class="fas fa-chevron-right" style="margin-left: 5px; font-size: 0.8em;"></i>
+            </button>
+            
+            <div class="error-msg" id="auth-error">
+                <i class="fas fa-triangle-exclamation"></i> <span>Invalid Verification Code</span>
+            </div>
+        </div>
     </div>
 
     <div id="loader-screen">
-        <div class="loader-card">
-            <div class="brand-logo"><i class="fas fa-shield-halved"></i></div>
-            <div class="brand-name">PAYROLL SYSTEM</div>
-            <div class="progress-box">
-                <div class="progress-track"><div id="progress-fill"></div></div>
-                <span class="percentage" id="percent-text">0%</span>
-                <div class="status-msg" id="status-msg">Initializing...</div>
-            </div>
+        <div class="spinner-container">
+            <div class="circle-spin"></div>
         </div>
-        <div class="disclaimer-box">
-            PROPERTY OF <span class="disclaimer-highlight">SHWARI MOVERS AND CLEANERS LTD</span><br>
-            Finance Team •Employee Payroll System @ 2026
-        </div>
+        <div class="loader-text">AUTHENTICATED</div>
+        <div class="loader-sub" id="loading-status">Decrypting data streams...</div>
     </div>
 
-    <div class="app-container" id="app-wrapper">
+    <div class="app-wrapper" id="app-wrapper">
         <iframe 
             src="https://script.google.com/macros/s/AKfycbxs9rYWBfIWNX4QYtyyi9EXXnYaPXPYs-pJTrzfH4k3nXqkTJd0X02YAqMZf4ghqY9OHw/exec"
             allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
@@ -198,105 +281,115 @@
     </div>
 
     <script>
-        // --- FINAL CONFIGURATION (SAME AS BEFORE) ---
-        const SECRET_KEY = "HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ"; 
+        // CONFIG
+        const SECRET_KEY = "HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ";
         
+        // ELEMENTS
         const authScreen = document.getElementById('auth-screen');
         const authError = document.getElementById('auth-error');
         const loaderScreen = document.getElementById('loader-screen');
+        const inputField = document.getElementById('totp-input');
         const video = document.getElementById('bg-video');
 
+        // LOGIC
         function verifyCode() {
-            const userCode = document.getElementById('totp-input').value.replace(/\D/g, '');
+            const userCode = inputField.value.replace(/\D/g, '');
             
             if (userCode.length !== 6) {
-                showError("Enter 6 digits");
+                triggerError("Please enter 6 digits");
                 return;
             }
 
             const totp = new OTPAuth.TOTP({
-                issuer: "ShwariPayroll",
-                label: "Shwari:Finance",
-                algorithm: "SHA1",
-                digits: 6,
-                period: 30,
+                issuer: "ShwariPayroll", label: "Shwari:Finance", algorithm: "SHA1", digits: 6, period: 30,
                 secret: OTPAuth.Secret.fromBase32(SECRET_KEY) 
             });
 
-            // High Tolerance enabled (Window 20 = +/- 10 mins)
+            // Validate with tolerance
             const delta = totp.validate({ token: userCode, window: 20 });
 
             if (delta !== null) {
-                authScreen.style.transform = "translateY(-100%)";
-                loaderScreen.style.visibility = "visible";
-                loaderScreen.style.opacity = "1";
-                startLoader(); 
+                // SUCCESS
+                inputField.blur(); // Hide keyboard
+                authScreen.style.transform = "scale(1.1)";
+                authScreen.style.opacity = "0";
+                
+                setTimeout(() => {
+                    authScreen.style.display = "none";
+                    loaderScreen.style.visibility = "visible";
+                    loaderScreen.style.opacity = "1";
+                    runLoaderSequence();
+                }, 400);
+
             } else {
-                showError("Access Denied: Invalid Code");
+                // FAILURE
+                triggerError("Access Denied");
+                inputField.classList.add('shake-it');
                 if (navigator.vibrate) navigator.vibrate(200);
+                setTimeout(() => inputField.classList.remove('shake-it'), 400);
             }
         }
 
-        function showError(msg) {
-            authError.innerText = msg;
+        function triggerError(msg) {
+            authError.querySelector('span').innerText = msg;
             authError.style.opacity = "1";
-            document.getElementById('totp-input').value = "";
-            document.getElementById('totp-input').focus();
+            setTimeout(() => authError.style.opacity = "0", 3000);
+            inputField.value = "";
+            inputField.focus();
         }
 
-        document.getElementById('totp-input').addEventListener('keypress', function (e) {
+        // Enter key support
+        inputField.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') verifyCode();
         });
 
-        // LOADER LOGIC
-        function startLoader() {
+        // LOADER SEQUENCE
+        function runLoaderSequence() {
             if(video) video.play().then(() => video.classList.add('video-ready')).catch(e => {});
-
-            let progress = 0;
-            const fill = document.getElementById('progress-fill');
-            const text = document.getElementById('percent-text');
-            const status = document.getElementById('status-msg');
             
-            const timer = setInterval(() => {
-                if (progress >= 100) {
-                    clearInterval(timer);
-                    completeLoading(status, fill, text);
+            const status = document.getElementById('loading-status');
+            const steps = [
+                "Verifying credentials...",
+                "Establishing secure tunnel...",
+                "Fetching employee database...",
+                "Finalizing layout..."
+            ];
+
+            let step = 0;
+            const interval = setInterval(() => {
+                if (step >= steps.length) {
+                    clearInterval(interval);
+                    completeLaunch();
                 } else {
-                    progress += 1;
-                    updateUI(progress, fill, text, status);
+                    status.innerText = steps[step];
+                    step++;
                 }
-            }, 50);
+            }, 600);
         }
 
-        function updateUI(p, fill, text, status) {
-            fill.style.width = p + "%";
-            text.innerText = p + "%";
-            if (p < 25) status.innerText = "Establishing connection...";
-            else if (p < 50) status.innerText = "Linking database...";
-            else if (p < 75) status.innerText = "Scanning Google Sheets...";
-            else status.innerText = "Analysis of Employee's Accounts...";
-        }
-
-        function completeLoading(status, fill, text) {
-            status.innerText = "Access Granted";
-            fill.style.width = "100%";
-            text.innerText = "100%";
-            requestAnimationFrame(() => {
-                document.body.classList.add('loaded');
-                setTimeout(() => showToast('Welcome back,', 'user'), 600);
-            });
-        }
-
-        function showToast(message, iconName) {
-            const container = document.getElementById('toast-wrapper');
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.innerHTML = `<i class="fas fa-${iconName}-circle"></i> ${message}`;
-            container.appendChild(toast);
-            requestAnimationFrame(() => toast.classList.add('show'));
+        function completeLaunch() {
+            loaderScreen.style.opacity = "0";
+            document.body.classList.add('loaded');
+            
             setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => toast.remove(), 500); 
+                loaderScreen.style.display = "none";
+                showToast("Access Granted", "user-shield");
+            }, 600);
+        }
+
+        function showToast(msg, icon) {
+            const box = document.getElementById('toast-container');
+            const div = document.createElement('div');
+            div.className = 'toast';
+            div.innerHTML = `<i class="fas fa-${icon}"></i> ${msg}`;
+            box.appendChild(div);
+            
+            // Animation Frame for smooth entry
+            requestAnimationFrame(() => div.classList.add('visible'));
+            
+            setTimeout(() => {
+                div.classList.remove('visible');
+                setTimeout(() => div.remove(), 400);
             }, 4000);
         }
     </script>
