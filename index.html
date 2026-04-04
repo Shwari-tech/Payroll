@@ -1,0 +1,46 @@
+<div id="app-wrapper">
+    <div style="padding: 40px; text-align: center;">
+        <h1 style="color: var(--ms-blue);">Shwari Finance Dashboard</h1>
+        <p style="color: #605e5c;">System is now running on high-speed GitHub servers.</p>
+        
+        <div style="margin-top: 40px;">
+            <button id="sync-btn" onclick="triggerSync()" 
+                style="background: var(--ms-blue); color: white; border: none; padding: 15px 30px; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 1rem;">
+                <i class="fa-solid fa-bolt"></i> RUN HIGH-SPEED SYNC
+            </button>
+        </div>
+        
+        <div id="sync-status" style="margin-top: 20px; font-size: 0.9rem; color: #107c10; display: none;">
+            <i class="fa-solid fa-circle-notch fa-spin"></i> Contacting GitHub Servers...
+        </div>
+    </div>
+</div>
+
+<script>
+async function triggerSync() {
+    const btn = document.getElementById('sync-btn');
+    const status = document.getElementById('sync-status');
+    
+    btn.disabled = true;
+    btn.style.opacity = '0.5';
+    status.style.display = 'block';
+
+    // TRIGGER GITHUB ACTION VIA API
+    const response = await fetch('https://api.github.com/repos/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME/dispatches', {
+        method: 'POST',
+        headers: {
+            'Authorization': 'token YOUR_PERSONAL_ACCESS_TOKEN',
+            'Accept': 'application/vnd.github.v3+json'
+        },
+        body: JSON.stringify({ event_type: 'manual_sync' })
+    });
+
+    if (response.ok) {
+        status.innerHTML = "✅ Sync Started! Check the 'Actions' tab in GitHub to watch progress.";
+    } else {
+        status.innerHTML = "❌ Error triggering sync. Check your Token.";
+        btn.disabled = false;
+        btn.style.opacity = '1';
+    }
+}
+</script>
