@@ -1,46 +1,84 @@
-<div id="app-wrapper">
-    <div style="padding: 40px; text-align: center;">
-        <h1 style="color: var(--ms-blue);">Shwari Finance Dashboard</h1>
-        <p style="color: #605e5c;">System is now running on high-speed GitHub servers.</p>
-        
-        <div style="margin-top: 40px;">
-            <button id="sync-btn" onclick="triggerSync()" 
-                style="background: var(--ms-blue); color: white; border: none; padding: 15px 30px; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 1rem;">
-                <i class="fa-solid fa-bolt"></i> RUN HIGH-SPEED SYNC
-            </button>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shwari Finance | Command Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --ms-blue: #0078d4; --ms-blue-hover: #005a9e; --ms-gray: #f3f2f1; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--ms-gray); margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; }
+        .card { background: white; padding: 48px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 450px; }
+        .logo { width: 40px; height: 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 3px; margin: 0 auto 24px; }
+        .sq { background: var(--ms-blue); }
+        .sq-1 { background: #f25022; } .sq-2 { background: #7fba00; } .sq-3 { background: #00a4ef; } .sq-4 { background: #ffb900; }
+        h1 { font-size: 1.8rem; color: #323130; margin-bottom: 8px; }
+        p { color: #605e5c; font-size: 0.95rem; line-height: 1.5; margin-bottom: 32px; }
+        .sync-btn { background: var(--ms-blue); color: white; border: none; padding: 16px 32px; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 1rem; width: 100%; transition: background 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .sync-btn:hover { background: var(--ms-blue-hover); }
+        .sync-btn:disabled { background: #c8c6c4; cursor: not-allowed; }
+        #status { margin-top: 20px; font-size: 0.85rem; padding: 12px; border-radius: 4px; display: none; }
+        .success { background: #dff6dd; color: #107c10; }
+        .error { background: #fde7e9; color: #a80000; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <div class="logo">
+            <div class="sq sq-1"></div><div class="sq sq-2"></div>
+            <div class="sq sq-3"></div><div class="sq sq-4"></div>
         </div>
+        <h1>Shwari Finance Dashboard</h1>
+        <p>System is now running on high-speed GitHub servers. Click below to process all current entries from the Cover Page.</p>
         
-        <div id="sync-status" style="margin-top: 20px; font-size: 0.9rem; color: #107c10; display: none;">
-            <i class="fa-solid fa-circle-notch fa-spin"></i> Contacting GitHub Servers...
-        </div>
+        <button id="sync-btn" class="sync-btn" onclick="triggerSync()">
+            <i class="fa-solid fa-bolt"></i> RUN HIGH-SPEED SYNC
+        </button>
+
+        <div id="status"></div>
     </div>
-</div>
 
-<script>
-async function triggerSync() {
-    const btn = document.getElementById('sync-btn');
-    const status = document.getElementById('sync-status');
-    
-    btn.disabled = true;
-    btn.style.opacity = '0.5';
-    status.style.display = 'block';
+    <script>
+        async function triggerSync() {
+            const btn = document.getElementById('sync-btn');
+            const status = document.getElementById('status');
+            
+            // CONFIG - Update these 3 lines
+            const owner = 'YOUR_GITHUB_USERNAME';
+            const repo = 'YOUR_REPO_NAME';
+            const token = 'YOUR_PERSONAL_ACCESS_TOKEN';
 
-    // TRIGGER GITHUB ACTION VIA API
-    const response = await fetch('https://api.github.com/repos/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME/dispatches', {
-        method: 'POST',
-        headers: {
-            'Authorization': 'token YOUR_PERSONAL_ACCESS_TOKEN',
-            'Accept': 'application/vnd.github.v3+json'
-        },
-        body: JSON.stringify({ event_type: 'manual_sync' })
-    });
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> INITIALIZING...';
+            status.style.display = 'none';
 
-    if (response.ok) {
-        status.innerHTML = "✅ Sync Started! Check the 'Actions' tab in GitHub to watch progress.";
-    } else {
-        status.innerHTML = "❌ Error triggering sync. Check your Token.";
-        btn.disabled = false;
-        btn.style.opacity = '1';
-    }
-}
-</script>
+            try {
+                const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/dispatches`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                    },
+                    body: JSON.stringify({ event_type: 'manual_sync' })
+                });
+
+                if (response.status === 204) {
+                    status.className = 'success';
+                    status.innerHTML = '<strong>✅ Sync Triggered!</strong><br>Processing has started on GitHub servers. Results will appear in your spreadsheet in ~60 seconds.';
+                    status.style.display = 'block';
+                } else {
+                    throw new Error('Connection failed');
+                }
+            } catch (err) {
+                status.className = 'error';
+                status.innerText = '❌ Error: Could not reach servers. Check your GitHub Token.';
+                status.style.display = 'block';
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-bolt"></i> RUN HIGH-SPEED SYNC';
+            }
+        }
+    </script>
+</body>
+</html>
