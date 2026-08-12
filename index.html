@@ -1,905 +1,350 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Shwari Finance | Secure Access</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Fallback font stack matching Microsoft Segoe UI -->
-    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/otpauth/9.1.4/otpauth.umd.min.js"></script>
-
-    <style>
-        :root {
-            --ms-blue:       #0078d4;
-            --ms-blue-dark:  #005a9e;
-            --ms-blue-light: #deecf9;
-            --ms-surface:    #f3f2f1;
-            --ms-white:      #ffffff;
-            --ms-gray-10:    #faf9f8;
-            --ms-gray-20:    #f3f2f1;
-            --ms-gray-30:    #edebe9;
-            --ms-gray-50:    #d2d0ce;
-            --ms-gray-90:    #3b3a39;
-            --ms-gray-110:   #201f1e;
-            --ms-red:        #d13438;
-            --ms-green:      #107c10;
-            --ms-neutral:    #605e5c;
-            --radius-sm:     4px;
-            --radius-md:     8px;
-            --radius-lg:     12px;
-            --shadow-2:      0 1.6px 3.6px rgba(0,0,0,.13), 0 .3px .9px rgba(0,0,0,.11);
-            --shadow-4:      0 3.2px 7.2px rgba(0,0,0,.13), 0 .6px 1.8px rgba(0,0,0,.11);
-            --shadow-8:      0 6.4px 14.4px rgba(0,0,0,.13), 0 1.2px 3.6px rgba(0,0,0,.11);
-            --shadow-16:     0 12.8px 28.8px rgba(0,0,0,.13), 0 2.4px 7.2px rgba(0,0,0,.11);
-            --font:          'Nunito Sans', 'Segoe UI', system-ui, sans-serif;
-        }
-
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-        html, body {
-            height: 100dvh;
-            width: 100%;
-            overflow: hidden;
-            font-family: var(--font);
-            background: var(--ms-gray-20);
-            -webkit-font-smoothing: antialiased;
-        }
-
-        /* ═══════════════════════════════════════════════
-           SPLIT LAYOUT – left brand panel + right card
-        ═══════════════════════════════════════════════ */
-        #auth-screen {
-            display: flex;
-            width: 100%;
-            height: 100dvh;
-            transition: opacity .4s ease, transform .4s ease;
-        }
-
-        /* LEFT BRAND PANEL */
-        .brand-panel {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            background: var(--ms-white);
-            border-right: 1px solid var(--ms-gray-30);
-            padding: 48px 48px 40px;
-            width: 46%;
-            flex-shrink: 0;
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* Subtle geometric accent */
-        .brand-panel::before {
-            content: '';
-            position: absolute;
-            bottom: -60px;
-            left: -60px;
-            width: 300px;
-            height: 300px;
-            background: linear-gradient(135deg, var(--ms-blue-light), transparent);
-            border-radius: 50%;
-            opacity: .6;
-        }
-
-        .brand-panel-top {
-            position: relative;
-            z-index: 2;
-        }
-
-        /* Microsoft 4-square logo */
-        .ms-logo {
-            display: flex;
-            gap: 3px;
-            width: 40px;
-            height: 40px;
-            margin-bottom: 32px;
-        }
-        .ms-logo-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: 1fr 1fr;
-            gap: 3px;
-            width: 40px;
-            height: 40px;
-        }
-        .ms-sq { border-radius: 1px; }
-        .ms-sq-1 { background: #f25022; }
-        .ms-sq-2 { background: #7fba00; }
-        .ms-sq-3 { background: #00a4ef; }
-        .ms-sq-4 { background: #ffb900; }
-
-        .brand-title {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--ms-gray-110);
-            line-height: 1.15;
-            letter-spacing: -.3px;
-            margin-bottom: 16px;
-        }
-
-        .brand-subtitle {
-            font-size: .95rem;
-            color: var(--ms-neutral);
-            line-height: 1.6;
-            max-width: 320px;
-            font-weight: 400;
-        }
-
-        .brand-panel-bottom {
-            position: relative;
-            z-index: 2;
-        }
-
-        .brand-tagline {
-            font-size: .78rem;
-            color: var(--ms-gray-50);
-            letter-spacing: .5px;
-            text-transform: uppercase;
-            font-weight: 600;
-        }
-
-        /* RIGHT AUTH PANEL */
-        .auth-panel {
-            flex: 1;
-            background: var(--ms-gray-10);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 24px;
-            overflow-y: auto;
-        }
-
-        .auth-card {
-            background: var(--ms-white);
-            border: 1px solid var(--ms-gray-30);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-8);
-            padding: 44px 40px 36px;
-            width: 100%;
-            max-width: 400px;
-        }
-
-        /* ═══════════════════════════════════════════════
-           GOOGLE AUTHENTICATOR BRANDING
-        ═══════════════════════════════════════════════ */
-        .ga-branding {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 28px;
-            padding-bottom: 24px;
-            border-bottom: 1px solid var(--ms-gray-30);
-        }
-
-        /* Google G SVG */
-        .google-g-wrapper {
-            width: 38px;
-            height: 38px;
-            flex-shrink: 0;
-        }
-
-        .ga-text-block { flex: 1; }
-
-        .ga-title {
-            font-size: .9rem;
-            font-weight: 600;
-            color: var(--ms-gray-110);
-            line-height: 1.2;
-        }
-
-        .ga-subtitle {
-            font-size: .75rem;
-            color: var(--ms-neutral);
-            font-weight: 400;
-            margin-top: 2px;
-        }
-
-        /* ═══════════════════════════════════════════════
-           CARD BODY
-        ═══════════════════════════════════════════════ */
-        .card-heading {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--ms-gray-110);
-            margin-bottom: 6px;
-        }
-
-        .card-desc {
-            font-size: .85rem;
-            color: var(--ms-neutral);
-            margin-bottom: 28px;
-            line-height: 1.55;
-        }
-
-        /* OTP INPUT */
-        .otp-wrapper {
-            position: relative;
-            margin-bottom: 20px;
-        }
-
-        .otp-label {
-            display: block;
-            font-size: .78rem;
-            font-weight: 600;
-            color: var(--ms-gray-90);
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: .6px;
-        }
-
-        .otp-field-outer {
-            position: relative;
-            display: flex;
-            align-items: center;
-            border: 1.5px solid var(--ms-gray-50);
-            border-radius: var(--radius-sm);
-            background: var(--ms-white);
-            transition: border-color .15s;
-        }
-
-        .otp-field-outer:focus-within {
-            border-color: var(--ms-blue);
-            box-shadow: 0 0 0 3px rgba(0,120,212,.15);
-        }
-
-        .otp-field-outer.error-state {
-            border-color: var(--ms-red);
-            box-shadow: 0 0 0 3px rgba(209,52,56,.12);
-        }
-
-        .otp-input {
-            flex: 1;
-            border: none;
-            outline: none;
-            background: transparent;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--ms-gray-110);
-            text-align: center;
-            letter-spacing: 10px;
-            padding: 16px 12px 16px 22px;
-            width: 100%;
-        }
-
-        .otp-input::placeholder {
-            color: var(--ms-gray-50);
-            font-size: 1.6rem;
-            letter-spacing: 6px;
-            font-weight: 400;
-        }
-
-        /* TIMER BADGE */
-        .timer-badge {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 0 14px 0 0;
-            min-width: 52px;
-            gap: 4px;
-        }
-
-        .timer-ring {
-            position: relative;
-            width: 34px;
-            height: 34px;
-        }
-
-        .timer-ring svg {
-            transform: rotate(-90deg);
-            width: 34px;
-            height: 34px;
-        }
-
-        .timer-ring .ring-track {
-            fill: none;
-            stroke: var(--ms-gray-30);
-            stroke-width: 3;
-        }
-
-        .timer-ring .ring-fill {
-            fill: none;
-            stroke: var(--ms-blue);
-            stroke-width: 3;
-            stroke-linecap: round;
-            stroke-dasharray: 85;
-            stroke-dashoffset: 0;
-            transition: stroke-dashoffset .9s linear, stroke .5s;
-        }
-
-        .timer-ring.ring-urgent .ring-fill { stroke: var(--ms-red); }
-
-        .timer-ring .ring-text {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: .65rem;
-            font-weight: 700;
-            color: var(--ms-gray-90);
-            font-family: var(--font);
-        }
-
-        /* ERROR MESSAGE */
-        .error-msg {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: .82rem;
-            color: var(--ms-red);
-            font-weight: 500;
-            min-height: 24px;
-            margin-bottom: 8px;
-            opacity: 0;
-            transition: opacity .25s;
-        }
-
-        .error-msg.visible { opacity: 1; }
-
-        /* INFO ROW */
-        .info-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: var(--ms-blue-light);
-            border-radius: var(--radius-sm);
-            padding: 10px 14px;
-            margin-top: 12px;
-            font-size: .8rem;
-            color: var(--ms-blue-dark);
-        }
-
-        .info-row i { font-size: .85rem; flex-shrink: 0; }
-
-        /* ═══════════════════════════════════════════════
-           FOOTER
-        ═══════════════════════════════════════════════ */
-        .auth-footer {
-            margin-top: 20px;
-            text-align: center;
-            font-size: .75rem;
-            color: var(--ms-gray-50);
-            letter-spacing: .3px;
-        }
-
-        .brand-footer-full {
-            font-size: .75rem;
-            color: var(--ms-gray-50);
-        }
-
-        /* ═══════════════════════════════════════════════
-           LOADER SCREEN
-        ═══════════════════════════════════════════════ */
-        #loader-screen {
-            position: fixed; inset: 0;
-            background: var(--ms-white);
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            z-index: 200;
-            visibility: hidden; opacity: 0;
-            transition: opacity .35s ease;
-        }
-
-        .ms-loader-logo {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: 1fr 1fr;
-            gap: 5px;
-            width: 56px;
-            height: 56px;
-            margin-bottom: 28px;
-            animation: ms-pop .4s ease forwards;
-        }
-
-        @keyframes ms-pop {
-            from { transform: scale(.7); opacity: 0; }
-            to   { transform: scale(1); opacity: 1; }
-        }
-
-        .ms-loader-sq { border-radius: 2px; }
-        .ms-loader-sq-1 { background: #f25022; animation: ms-sq-in .3s .05s ease both; }
-        .ms-loader-sq-2 { background: #7fba00; animation: ms-sq-in .3s .1s ease both; }
-        .ms-loader-sq-3 { background: #00a4ef; animation: ms-sq-in .3s .15s ease both; }
-        .ms-loader-sq-4 { background: #ffb900; animation: ms-sq-in .3s .2s ease both; }
-
-        @keyframes ms-sq-in {
-            from { transform: scale(0); opacity: 0; }
-            to   { transform: scale(1); opacity: 1; }
-        }
-
-        .loader-progress-track {
-            width: 240px;
-            height: 3px;
-            background: var(--ms-gray-30);
-            border-radius: 99px;
-            overflow: hidden;
-            margin-top: 20px;
-        }
-
-        .loader-progress-bar {
-            height: 100%;
-            background: var(--ms-blue);
-            border-radius: 99px;
-            width: 0%;
-            transition: width .5s ease;
-        }
-
-        .loader-status {
-            font-size: .82rem;
-            color: var(--ms-neutral);
-            margin-top: 14px;
-            font-weight: 500;
-            letter-spacing: .2px;
-            min-height: 20px;
-        }
-
-        .loader-label {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--ms-gray-110);
-            margin-bottom: 4px;
-        }
-
-        /* ═══════════════════════════════════════════════
-           APP WRAPPER
-        ═══════════════════════════════════════════════ */
-        #app-wrapper {
-            position: fixed; inset: 0;
-            z-index: 300;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity .5s ease;
-            background: #fff;
-        }
-
-        #app-wrapper.loaded {
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        #app-wrapper iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            display: block;
-        }
-
-        /* ═══════════════════════════════════════════════
-           SHAKE ANIMATION
-        ═══════════════════════════════════════════════ */
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            20% { transform: translateX(-8px); }
-            40% { transform: translateX(8px); }
-            60% { transform: translateX(-4px); }
-            80% { transform: translateX(4px); }
-        }
-
-        .shake-it { animation: shake .35s ease-in-out; }
-
-        /* ═══════════════════════════════════════════════
-           TOAST
-        ═══════════════════════════════════════════════ */
-        #toast-container {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            pointer-events: none;
-        }
-
-        .toast-item {
-            background: var(--ms-white);
-            border: 1px solid var(--ms-gray-30);
-            border-left: 4px solid var(--ms-blue);
-            border-radius: var(--radius-sm);
-            box-shadow: var(--shadow-8);
-            padding: 12px 20px;
-            font-size: .85rem;
-            font-weight: 500;
-            color: var(--ms-gray-110);
-            white-space: nowrap;
-            opacity: 0;
-            transform: translateY(-12px);
-            transition: opacity .3s, transform .3s;
-        }
-
-        .toast-item.toast-success { border-left-color: var(--ms-green); }
-        .toast-item.toast-error   { border-left-color: var(--ms-red);   }
-        .toast-item.visible       { opacity: 1; transform: translateY(0); }
-
-        /* ═══════════════════════════════════════════════
-           MOBILE RESPONSIVE
-        ═══════════════════════════════════════════════ */
-        @media (max-width: 700px) {
-            #auth-screen { flex-direction: column; overflow-y: auto; height: auto; min-height: 100dvh; }
-
-            .brand-panel {
-                width: 100%;
-                padding: 32px 24px 28px;
-                border-right: none;
-                border-bottom: 1px solid var(--ms-gray-30);
-                flex-direction: row;
-                align-items: center;
-                gap: 16px;
-            }
-
-            .brand-panel::before { display: none; }
-
-            .ms-logo-grid { width: 30px; height: 30px; gap: 2px; margin-bottom: 0; }
-
-            .brand-title { font-size: 1.25rem; margin-bottom: 6px; }
-            .brand-subtitle { font-size: .8rem; max-width: 100%; }
-            .brand-panel-bottom { display: none; }
-            .brand-panel-top { flex: 1; }
-
-            .auth-panel { padding: 32px 16px 48px; justify-content: flex-start; }
-            .auth-card { padding: 32px 24px 28px; }
-            .otp-input { font-size: 1.6rem; }
-        }
-
-        @media (max-width: 380px) {
-            .auth-card { padding: 24px 16px 20px; }
-            .otp-input { font-size: 1.4rem; letter-spacing: 6px; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Secure Access | Petty Cash Ledger</title>
+
+<!-- Preload critical assets for instant rendering -->
+<link rel="preconnect" href="https://images.icon-icons.com">
+<link rel="preconnect" href="https://images.rawpixel.com">
+<link rel="preload" as="image" href="https://images.icon-icons.com/1156/PNG/512/1486565573-microsoft-office_81557.png">
+<link rel="preload" as="image" href="https://images.rawpixel.com/image_png_800/czNmcy1wcml2YXRlL3Jhd3BpeGVsX2ltYWdlcy93ZWJzaXRlX2NvbnRlbnQvbHIvdjkzNy1hZXctMTY1LnBuZw.png">
+
+<!-- Fonts & Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    /* -- Ledger / vault palette -- */
+    --paper:        #F6F7F5;   
+    --paper-line:   #E4E7E2;
+    --ink:          #101820;   
+    --ink-soft:     #4B5560;
+    --safe-green:   #1F6B45;   
+    --safe-green-dk:#154C31;
+    --field-rust:   #B5541A;   
+    --field-rust-dk:#8C3F12;
+    --brass:        #A5823C;   
+    --brass-soft:   #C9AD73;
+
+    --display: 'Fraunces', serif;
+    --body:    'IBM Plex Sans', sans-serif;
+    --mono:    'IBM Plex Mono', monospace;
+  }
+
+  *{ box-sizing:border-box; }
+
+  html,body{
+    margin:0; padding:0;
+    height:100dvh; width:100%;
+    overflow:hidden;
+    background:var(--paper);
+    font-family:var(--body);
+    overscroll-behavior:none;
+    -webkit-tap-highlight-color:transparent;
+  }
+
+  /* ============================================================
+     GROUND — ledger-paper texture, ambient animations
+     ============================================================ */
+  #bg-static{
+    position:fixed; inset:0; z-index:1;
+    background:
+      linear-gradient(var(--paper-line) 1px, transparent 1px) 0 0/100% 34px,
+      var(--paper);
+  }
+  #bg-static::before{
+    content:''; position:absolute; top:0; bottom:0; left:15%; width:1px;
+    background:rgba(181,84,26,0.14);
+    animation: ruleGlow 6s ease-in-out infinite;
+  }
+  #bg-static::after{
+    content:''; position:absolute; inset:0;
+    background:
+      radial-gradient(circle at 12% 8%, rgba(31,107,69,0.05) 0%, transparent 40%),
+      radial-gradient(circle at 90% 92%, rgba(181,84,26,0.05) 0%, transparent 45%);
+  }
+  @keyframes ruleGlow{
+    0%, 100%{ opacity:1; }
+    50%     { opacity:0.35; }
+  }
+
+  /* -- Drifting colour orbs -- */
+  #bg-orbs{ position:fixed; inset:0; z-index:1; overflow:hidden; }
+  #bg-orbs span{ position:absolute; border-radius:50%; filter:blur(60px); opacity:0.16; }
+  #bg-orbs span:nth-child(1){ width:340px; height:340px; left:-90px; top:-70px; background:var(--safe-green); animation: orbDrift1 22s ease-in-out infinite; }
+  #bg-orbs span:nth-child(2){ width:300px; height:300px; right:-80px; bottom:-60px; background:var(--field-rust); animation: orbDrift2 26s ease-in-out infinite; }
+  #bg-orbs span:nth-child(3){ width:220px; height:220px; right:12%; top:8%; background:var(--brass); opacity:0.10; animation: orbDrift3 19s ease-in-out infinite; }
+  
+  @keyframes orbDrift1{ 0%,100%{ transform:translate(0,0) scale(1); } 50% { transform:translate(60px,40px) scale(1.15); } }
+  @keyframes orbDrift2{ 0%,100%{ transform:translate(0,0) scale(1); } 50% { transform:translate(-50px,-35px) scale(1.1); } }
+  @keyframes orbDrift3{ 0%,100%{ transform:translate(0,0) scale(1); } 50% { transform:translate(-30px,26px) scale(0.9); } }
+
+  /* -- Slow diagonal light sweep -- */
+  #bg-sweep{
+    position:fixed; inset:-20%; z-index:1; pointer-events:none;
+    background:linear-gradient(115deg, transparent 40%, rgba(255,255,255,0.9) 49%, rgba(255,255,255,0.9) 51%, transparent 60%);
+    mix-blend-mode:screen; opacity:0.5;
+    animation: sweep 9s ease-in-out infinite;
+  }
+  @keyframes sweep{ 0% { transform:translateX(-30%); } 50% { transform:translateX(30%); } 100% { transform:translateX(-30%); } }
+
+  /* -- Floating ledger tally marks -- */
+  #bg-particles{ position:fixed; inset:0; z-index:1; overflow:hidden; }
+  #bg-particles svg{ position:absolute; opacity:0.22; animation: particleFloat 7s ease-in-out infinite; }
+  #bg-particles svg:nth-child(1){ top:12%; left:8%;  width:26px; color:var(--safe-green); animation-delay:0s; }
+  #bg-particles svg:nth-child(2){ top:22%; right:10%; width:20px; color:var(--field-rust); animation-delay:1.2s; }
+  #bg-particles svg:nth-child(3){ bottom:16%; left:12%; width:22px; color:var(--brass); animation-delay:2.4s; }
+  #bg-particles svg:nth-child(4){ bottom:24%; right:14%; width:18px; color:var(--safe-green); animation-delay:3.6s; }
+  #bg-particles svg:nth-child(5){ top:48%; left:5%; width:16px; color:var(--field-rust); animation-delay:0.8s; }
+  #bg-particles svg:nth-child(6){ top:56%; right:6%; width:24px; color:var(--brass); animation-delay:2s; }
+  @keyframes particleFloat{ 0%, 100%{ transform:translateY(0) rotate(0deg); } 50% { transform:translateY(-14px) rotate(6deg); } }
+
+  /* ============================================================
+     PICKER SCREEN
+     ============================================================ */
+  #picker-screen{
+    position:fixed; inset:0; z-index:999;
+    display:flex; flex-direction:column; justify-content:center; align-items:center;
+    padding:20px; box-sizing:border-box;
+  }
+  #picker-screen.hidden-instant{ display:none; }
+
+  /* -- Seal mark -- */
+  .picker-header{
+    text-align:center; margin-bottom:36px; opacity:0;
+    animation: rise 0.7s cubic-bezier(.2,.8,.2,1) 0.15s forwards;
+  }
+
+  .seal{
+    width:74px; height:74px; margin:0 auto 14px; position:relative;
+    transform:scale(1.9) rotate(-14deg); opacity:0;
+    animation: stamp 0.6s cubic-bezier(.2,.9,.25,1) 0.35s forwards;
+  }
+  .seal svg{ width:100%; height:100%; display:block; }
+  .seal-ring{ stroke:var(--brass); stroke-width:1.4; fill:none; }
+  .seal-ticks{ stroke:var(--brass-soft); stroke-width:1; }
+  .seal-mark{ fill:var(--ink); }
+
+  @keyframes stamp{
+    0%   { transform:scale(1.9) rotate(-14deg); opacity:0; }
+    55%  { transform:scale(0.94) rotate(2deg);  opacity:1; }
+    75%  { transform:scale(1.05) rotate(-1deg); }
+    100% { transform:scale(1) rotate(0deg);     opacity:1; }
+  }
+  @keyframes rise{ from{ opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+  .brand-name{ color:var(--ink); font-family:var(--display); font-weight:600; font-size:1.22rem; letter-spacing:0.3px; margin-bottom:6px; }
+  .brand-sub{ color:var(--ink-soft); font-size:0.78rem; font-weight:500; letter-spacing:0.2px; }
+
+  /* -- Cards -- */
+  .picker-grid{
+    display:flex; gap:16px; width:100%; max-width:430px; opacity:0;
+    animation: rise 0.7s cubic-bezier(.2,.8,.2,1) 0.5s forwards;
+  }
+
+  .picker-card{
+    flex:1; background:#FFFFFF; border:1px solid var(--paper-line); border-radius:14px;
+    padding:26px 14px 20px; display:flex; flex-direction:column; align-items:center;
+    box-shadow:0 1px 2px rgba(16,24,32,0.04), 0 14px 28px -14px rgba(16,24,32,0.12);
+    cursor:pointer; position:relative; text-align:center;
+    transition:transform 0.18s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  }
+  .picker-card:active{ transform:scale(0.96); }
+  .picker-card:hover{
+    transform:translateY(-3px);
+    box-shadow:0 1px 2px rgba(16,24,32,0.05), 0 22px 34px -16px rgba(16,24,32,0.18);
+  }
+  .picker-card.office:hover{ border-color:rgba(31,107,69,0.35); }
+  .picker-card.ground:hover{ border-color:rgba(181,84,26,0.35); }
+
+  .picker-card::before{
+    content:''; position:absolute; top:0; left:16px; right:16px; height:3px; border-radius:0 0 3px 3px;
+  }
+  .picker-card.office::before{ background:var(--safe-green); }
+  .picker-card.ground::before{ background:var(--field-rust); }
+
+  .picker-card::after{
+    content:''; position:absolute; inset:0; border-radius:14px;
+    background:linear-gradient(115deg, transparent 35%, rgba(255,255,255,0.55) 50%, transparent 65%);
+    transform:translateX(-120%); pointer-events:none;
+  }
+  .picker-card:hover::after{ animation: cardShine 0.9s ease forwards; }
+  @keyframes cardShine{ to{ transform:translateX(120%); } }
+
+  /* -- Icon shell & Images -- */
+  .picker-icon-shell{
+    position:relative; width:72px; height:72px;
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom:16px;
+  }
+
+  .picker-icon-ring {
+    position: absolute; inset: 0;
+    border-radius: 50%;
+    border: 1.5px dashed;
+    opacity: 0.6;
+    transition: transform 0.6s cubic-bezier(.2,.7,.2,1);
+  }
+  .picker-card.office .picker-icon-ring { border-color: var(--safe-green); }
+  .picker-card.ground .picker-icon-ring { border-color: var(--field-rust); }
+  .picker-card:hover .picker-icon-ring { transform: rotate(48deg); }
+
+  .picker-icon-wrap{
+    position:relative; width:46px; height:46px;
+    border-radius:50%; display:flex; align-items:center; justify-content:center;
+    z-index:2; overflow:hidden;
+  }
+  .picker-card.office .picker-icon-wrap{ background:#EEF5F0; }
+  .picker-card.ground .picker-icon-wrap{ background:#FBEEE4; }
+  
+  .picker-icon-wrap img {
+    width: 65%; height: 65%;
+    object-fit: contain;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .picker-card:hover .picker-icon-wrap img { transform: scale(1.15); }
+
+  .picker-badge{
+    position:absolute; bottom:-2px; right:-2px;
+    width:22px; height:22px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    color:#fff; z-index:3; border:2px solid #fff;
+    font-size:10px;
+  }
+  .picker-card.office .picker-badge{ background:var(--safe-green); }
+  .picker-card.ground .picker-badge{ background:var(--field-rust); }
+
+  .picker-title{
+    color:var(--ink); font-family:var(--display); font-weight:600;
+    font-size:1rem; letter-spacing:0.2px; margin-bottom:5px; text-transform:uppercase;
+  }
+  .picker-desc{
+    color:var(--ink-soft); font-size:0.74rem;
+    font-weight:500; line-height:1.45;
+  }
+
+  /* -- Footer disclaimer -- */
+  .disclaimer-box{
+    position:absolute; bottom:26px;
+    font-family:var(--mono); font-size:9.5px; color:var(--ink-soft);
+    text-align:center; width:100%; line-height:1.6; letter-spacing:0.2px;
+    opacity:0; animation: rise 0.7s ease 0.75s forwards;
+  }
+  .disclaimer-highlight{ color:var(--brass); font-weight:600; letter-spacing:0.8px; }
+
+  /* ============================================================
+     APP CONTAINER
+     ============================================================ */
+  .app-container{
+    position:fixed; inset:0; z-index:10; opacity:0;
+    pointer-events:none; -webkit-overflow-scrolling:touch;
+  }
+  .app-container.active{ opacity:1; pointer-events:all; }
+  iframe{ width:100%; height:100%; border:none; background:#fff; }
+
+</style>
 </head>
 <body>
 
-    <div id="toast-container"></div>
+  <div id="bg-static"></div>
+  <div id="bg-orbs"><span></span><span></span><span></span></div>
+  <div id="bg-sweep"></div>
+  <div id="bg-particles">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M4 4v16M9 4v16M14 4v16M19 4v10l-4 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+    <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.4"/><path d="M9 12h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+    <svg viewBox="0 0 24 24" fill="none"><path d="M4 4v16M9 4v16M14 4v10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+    <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.4"/><path d="M12 9v6M9 12h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+    <svg viewBox="0 0 24 24" fill="none"><path d="M4 4v16M9 4v10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+    <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.4"/></svg>
+  </div>
 
-    <!-- ══════════════════════════════════════
-         AUTH SCREEN
-    ══════════════════════════════════════ -->
-    <div id="auth-screen">
+  <div id="picker-screen">
 
-        <!-- LEFT: BRAND PANEL -->
-        <div class="brand-panel">
-            <div class="brand-panel-top">
-                <div class="ms-logo">
-                    <div class="ms-logo-grid">
-                        <div class="ms-sq ms-sq-1"></div>
-                        <div class="ms-sq ms-sq-2"></div>
-                        <div class="ms-sq ms-sq-3"></div>
-                        <div class="ms-sq ms-sq-4"></div>
-                    </div>
-                </div>
-                <h1 class="brand-title">Shwari Finance</h1>
-                <p class="brand-subtitle">
-                    Shwari Movers employee payroll and financial management platform.
-                    Providing real-time payroll processing, transaction management, and financial oversight for operations teams.
-                </p>
-            </div>
-            <div class="brand-panel-bottom">
-                <div class="brand-tagline">Shwari Quick Pay System</div>
-            </div>
-        </div>
-
-        <!-- RIGHT: AUTH PANEL -->
-        <div class="auth-panel">
-            <div class="auth-card">
-
-                <!-- Google Authenticator branding -->
-                <div class="ga-branding">
-                    <div class="google-g-wrapper">
-                        <!-- Google "G" Official SVG -->
-                        <svg viewBox="0 0 46 46" xmlns="http://www.w3.org/2000/svg" width="38" height="38">
-                            <path fill="#4285F4" d="M46 24.136c0-1.57-.14-3.083-.4-4.534H23.5v8.58h12.64c-.546 2.937-2.2 5.427-4.69 7.1v5.9h7.594C42.908 37.01 46 31.05 46 24.136z"/>
-                            <path fill="#34A853" d="M23.5 46c6.348 0 11.674-2.104 15.565-5.718l-7.595-5.9c-2.106 1.411-4.8 2.24-7.97 2.24-6.13 0-11.326-4.14-13.18-9.706H2.466v6.092C6.34 40.796 14.35 46 23.5 46z"/>
-                            <path fill="#FBBC05" d="M10.32 27.417A13.718 13.718 0 0 1 9.6 23c0-1.536.264-3.03.72-4.418v-6.09H2.466A22.999 22.999 0 0 0 .5 23c0 3.71.888 7.22 2.466 10.508l7.854-6.09z"/>
-                            <path fill="#EA4335" d="M23.5 9.125c3.454 0 6.552 1.187 8.996 3.523l6.743-6.743C35.17 2.26 29.844 0 23.5 0 14.35 0 6.34 5.205 2.466 12.49l7.854 6.09C12.174 13.266 17.37 9.125 23.5 9.125z"/>
-                        </svg>
-                    </div>
-                    <div class="ga-text-block">
-                        <div class="ga-title">Google Authenticator</div>
-                        <div class="ga-subtitle">Two-factor verification required</div>
-                    </div>
-                </div>
-
-                <h2 class="card-heading">Verify your identity</h2>
-                <p class="card-desc">Open Google Authenticator on your device and enter the 6-digit verification code shown for this account.</p>
-
-                <!-- OTP INPUT -->
-                <div class="otp-wrapper">
-                    <label class="otp-label" for="totp-input">Verification Code</label>
-                    <div class="otp-field-outer" id="otp-field-outer">
-                        <input
-                            type="tel"
-                            id="totp-input"
-                            class="otp-input"
-                            placeholder="000000"
-                            maxlength="6"
-                            inputmode="numeric"
-                            autocomplete="one-time-code"
-                            spellcheck="false"
-                        >
-                        <!-- 30-second countdown ring -->
-                        <div class="timer-badge">
-                            <div class="timer-ring" id="timer-ring">
-                                <svg viewBox="0 0 36 36">
-                                    <circle class="ring-track" cx="18" cy="18" r="14"/>
-                                    <circle class="ring-fill" id="ring-fill" cx="18" cy="18" r="14"/>
-                                </svg>
-                                <div class="ring-text" id="timer-text">30</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="error-msg" id="auth-error">
-                        <i class="fa-solid fa-circle-xmark"></i>
-                        <span id="error-text">Invalid verification code. Please try again.</span>
-                    </div>
-                </div>
-
-                <div class="info-row">
-                    <i class="fa-solid fa-circle-info"></i>
-                    The code changes every 30 seconds. Enter the current code shown in your authenticator app.
-                </div>
-
-            </div>
-
-            <div class="auth-footer">
-                Shwari Quick Pay System &nbsp;&mdash;&nbsp; Secure Access Portal
-            </div>
-        </div>
-
+    <div class="picker-header">
+      <div class="seal">
+        <svg viewBox="0 0 64 64" fill="none">
+          <circle class="seal-ring" cx="32" cy="32" r="29"/>
+          <circle class="seal-ring" cx="32" cy="32" r="24"/>
+          <g class="seal-ticks">
+            <line x1="32" y1="4"  x2="32" y2="8"/>
+            <line x1="32" y1="56" x2="32" y2="60"/>
+            <line x1="4"  y1="32" x2="8"  y2="32"/>
+            <line x1="56" y1="32" x2="60" y2="32"/>
+          </g>
+          <g class="seal-mark">
+            <rect x="19" y="24" width="26" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
+            <line x1="19" y1="31" x2="45" y2="31" stroke="currentColor" stroke-width="2"/>
+            <circle cx="32" cy="31" r="2.6" fill="currentColor"/>
+            <path d="M25 24 L25 20 Q25 17 28 17 L36 17 Q39 17 39 20 L39 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </g>
+        </svg>
+      </div>
+      <div class="brand-name">Cash Management</div>
+      <div class="brand-sub">Select your access point</div>
     </div>
 
+    <!-- YOUR EXACT REQUESTED GRID HTML STRUCTURE -->
+    <div class="picker-grid">
+      <div class="picker-card office" id="btn-office">
+        <div class="picker-icon-shell">
+          <div class="picker-icon-ring"></div>
+          <div class="picker-icon-wrap">
+            <img src="https://images.icon-icons.com/1156/PNG/512/1486565573-microsoft-office_81557.png" alt="Office" fetchpriority="high" decoding="async">
+          </div>
+          <div class="picker-badge"><i class="fas fa-lock"></i></div>
+        </div>
+        <div class="picker-title">Office</div>
+        <div class="picker-desc">Head Office<br>Petty Cash Ledger</div>
+      </div>
 
-    <!-- ══════════════════════════════════════
-         LOADER SCREEN
-    ══════════════════════════════════════ -->
-    <div id="loader-screen">
-        <div class="ms-loader-logo">
-            <div class="ms-loader-sq ms-loader-sq-1"></div>
-            <div class="ms-loader-sq ms-loader-sq-2"></div>
-            <div class="ms-loader-sq ms-loader-sq-3"></div>
-            <div class="ms-loader-sq ms-loader-sq-4"></div>
+      <div class="picker-card ground" id="btn-ground">
+        <div class="picker-icon-shell">
+          <div class="picker-icon-ring"></div>
+          <div class="picker-icon-wrap">
+            <img src="https://images.rawpixel.com/image_png_800/czNmcy1wcml2YXRlL3Jhd3BpeGVsX2ltYWdlcy93ZWJzaXRlX2NvbnRlbnQvbHIvdjkzNy1hZXctMTY1LnBuZw.png" alt="Ground" fetchpriority="high" decoding="async">
+          </div>
+          <div class="picker-badge"><i class="fas fa-lock"></i></div>
         </div>
-        <div class="loader-label">Shwari Finance</div>
-        <div class="loader-status" id="loading-status">Establishing secure connection...</div>
-        <div class="loader-progress-track">
-            <div class="loader-progress-bar" id="loader-bar"></div>
-        </div>
+        <div class="picker-title">Ground</div>
+        <div class="picker-desc">Field Operations<br>Petty Cash Ledger</div>
+      </div>
     </div>
 
-
-    <!-- ══════════════════════════════════════
-         APP WRAPPER (iframe)
-    ══════════════════════════════════════ -->
-    <div class="app-wrapper" id="app-wrapper">
-        <iframe
-            id="app-iframe"
-            src=""
-            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen>
-        </iframe>
+    <div class="disclaimer-box">
+      PROPERTY OF <span class="disclaimer-highlight">SHWARI MOVERS AND CLEANERS LTD</span><br>
+      Finance Team · Cash Management · 2026
     </div>
+  </div>
 
+  <div class="app-container" id="app-wrapper">
+    <iframe id="section-frame" src="" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  </div>
 
-    <script>
-        /* ════════════════════════════════════════
-           CONFIG
-        ════════════════════════════════════════ */
-        const SECRET_KEY = "HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ";
-        const APP_URL    = "https://script.google.com/macros/s/AKfycbxLReFMK5DF81NhN78SKvAdo-PYEvrTz1sF1LkIpGIJl5TVcdz-8Gz6xsOF4-VFEspFhA/exec";
+  <script>
+    // SECTION LINKS
+    const SECTION_LINKS = {
+        office: "https://script.google.com/macros/s/AKfycbxywoO96tuvySMFV8zcP0bU5ic6rsM8ALXhfjyPL4CVkH4g3CJqDAo62yR98BJzhxsukQ/exec",
+        ground: "https://script.google.com/macros/s/AKfycbwzmV3rZ-QVIlCQXLug0QbAl_bNxReUNWpMuf-X6Ytu7ESiVvAa2uPy17UM0XnGiOsI/exec"
+    };
 
-        /* ════════════════════════════════════════
-           ELEMENTS
-        ════════════════════════════════════════ */
-        const otpInput     = document.getElementById('totp-input');
-        const fieldOuter   = document.getElementById('otp-field-outer');
-        const authError    = document.getElementById('auth-error');
-        const errorText    = document.getElementById('error-text');
-        const loaderScreen = document.getElementById('loader-screen');
-        const loaderBar    = document.getElementById('loader-bar');
-        const loadingStatus= document.getElementById('loading-status');
-        const appWrapper   = document.getElementById('app-wrapper');
-        const appIframe    = document.getElementById('app-iframe');
-        const timerRing    = document.getElementById('timer-ring');
-        const ringFill     = document.getElementById('ring-fill');
-        const timerText    = document.getElementById('timer-text');
+    // INSTANT SELECT
+    function openSection(key) {
+        const frame = document.getElementById('section-frame');
+        const picker = document.getElementById('picker-screen');
+        const appWrapper = document.getElementById('app-wrapper');
 
-        /* ════════════════════════════════════════
-           30-SECOND TOTP COUNTDOWN TIMER
-        ════════════════════════════════════════ */
-        const CIRCUMFERENCE = 2 * Math.PI * 14; // r=14 → ≈87.96, approx 88
+        frame.src = SECTION_LINKS[key];
+        picker.classList.add('hidden-instant');
+        appWrapper.classList.add('active');
+    }
 
-        function updateTimer() {
-            const now     = Math.floor(Date.now() / 1000);
-            const epoch30 = Math.floor(now / 30) * 30;
-            const elapsed = now - epoch30;           // 0..29
-            const remain  = 30 - elapsed;            // 30..1
-
-            timerText.textContent = remain;
-
-            // Ring fill: full at remain=30, empty at remain=0
-            const pct    = remain / 30;
-            const offset = CIRCUMFERENCE * (1 - pct);
-            ringFill.style.strokeDasharray  = CIRCUMFERENCE;
-            ringFill.style.strokeDashoffset = offset;
-
-            // Turn red in last 10 seconds
-            if (remain <= 10) {
-                timerRing.classList.add('ring-urgent');
-                timerText.style.color = '#d13438';
-            } else {
-                timerRing.classList.remove('ring-urgent');
-                timerText.style.color = '';
-            }
-
-            // Auto-clear input when code rotates
-            if (remain === 30 && otpInput.value.length > 0 && otpInput.value.length < 6) {
-                otpInput.value = '';
-                hideError();
-            }
-        }
-
-        updateTimer();
-        setInterval(updateTimer, 1000);
-
-        /* ════════════════════════════════════════
-           AUTO-VERIFY ON 6 DIGITS
-        ════════════════════════════════════════ */
-        otpInput.addEventListener('input', function () {
-            // Only digits
-            this.value = this.value.replace(/\D/g, '').slice(0, 6);
-            hideError();
-            fieldOuter.classList.remove('error-state');
-
-            if (this.value.length === 6) {
-                verifyCode(this.value);
-            }
-        });
-
-        otpInput.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter' && this.value.length === 6) verifyCode(this.value);
-        });
-
-        /* ════════════════════════════════════════
-           TOTP VERIFICATION
-        ════════════════════════════════════════ */
-        function verifyCode(code) {
-            try {
-                const totp = new OTPAuth.TOTP({
-                    issuer:    "ShwariPayroll",
-                    label:     "Shwari:Finance",
-                    algorithm: "SHA1",
-                    digits:    6,
-                    period:    30,
-                    secret:    OTPAuth.Secret.fromBase32(SECRET_KEY)
-                });
-
-                const delta = totp.validate({ token: code, window: 2 });
-
-                if (delta !== null) {
-                    onAuthSuccess();
-                } else {
-                    onAuthFailure("Incorrect code. Check your authenticator app.");
-                }
-            } catch (err) {
-                onAuthFailure("Verification error. Please try again.");
-            }
-        }
-
-        /* ════════════════════════════════════════
-           SUCCESS FLOW
-        ════════════════════════════════════════ */
-        function onAuthSuccess() {
-            otpInput.blur();
-
-            // Fade out auth screen
-            const authScreen = document.getElementById('auth-screen');
-            authScreen.style.opacity = '0';
-            authScreen.style.transform = 'scale(.98)';
-            authScreen.style.transition = 'opacity .35s, transform .35s';
-
-            setTimeout(() => {
-                authScreen.style.display = 'none';
-                showLoader();
-            }, 350);
-        }
-
-        const LOAD_STEPS = [
-            { pct: 18,  msg: "Verifying credentials..." },
-            { pct: 36,  msg: "Establishing secure connection..." },
-            { pct: 55,  msg: "Loading employee database..." },
-            { pct: 72,  msg: "Synchronizing payroll records..." },
-            { pct: 88,  msg: "Preparing dashboard..." },
-            { pct: 100, msg: "Ready" }
-        ];
-
-        function showLoader() {
-            loaderScreen.style.visibility = 'visible';
-            loaderScreen.style.opacity    = '1';
-
-            let i = 0;
-            function nextStep() {
-                if (i >= LOAD_STEPS.length) {
-                    completeLaunch();
-                    return;
-                }
-                const step = LOAD_STEPS[i];
-                loaderBar.style.width   = step.pct + '%';
-                loadingStatus.textContent = step.msg;
-                i++;
-                setTimeout(nextStep, 480);
-            }
-            nextStep();
-        }
-
-        function completeLaunch() {
-            // Preload iframe while fading loader
-            appIframe.src = APP_URL;
-
-            setTimeout(() => {
-                loaderScreen.style.opacity = '0';
-                setTimeout(() => {
-                    loaderScreen.style.display = 'none';
-                    appWrapper.classList.add('loaded');
-                    showToast("Access granted. Welcome.", "success");
-                }, 350);
-            }, 600);
-        }
-
-        /* ════════════════════════════════════════
-           FAILURE FLOW
-        ════════════════════════════════════════ */
-        function onAuthFailure(msg) {
-            errorText.textContent = msg || "Invalid verification code.";
-            authError.classList.add('visible');
-            fieldOuter.classList.add('error-state');
-            fieldOuter.classList.add('shake-it');
-            if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-            otpInput.value = '';
-            otpInput.focus();
-
-            setTimeout(() => {
-                fieldOuter.classList.remove('shake-it');
-            }, 400);
-        }
-
-        function hideError() {
-            authError.classList.remove('visible');
-            fieldOuter.classList.remove('error-state');
-        }
-
-        /* ════════════════════════════════════════
-           TOAST NOTIFICATIONS
-        ════════════════════════════════════════ */
-        function showToast(msg, type) {
-            const box  = document.getElementById('toast-container');
-            const item = document.createElement('div');
-            item.className = 'toast-item toast-' + (type || 'info');
-            item.textContent = msg;
-            box.appendChild(item);
-
-            requestAnimationFrame(() => item.classList.add('visible'));
-
-            setTimeout(() => {
-                item.classList.remove('visible');
-                setTimeout(() => item.remove(), 350);
-            }, 4000);
-        }
-
-        /* ════════════════════════════════════════
-           AUTO-FOCUS ON LOAD
-        ════════════════════════════════════════ */
-        window.addEventListener('load', () => {
-            setTimeout(() => otpInput.focus(), 300);
-        });
-    </script>
-
+    document.getElementById('btn-office').addEventListener('click', () => openSection('office'));
+    document.getElementById('btn-ground').addEventListener('click', () => openSection('ground'));
+  </script>
 </body>
 </html>
