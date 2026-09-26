@@ -692,8 +692,16 @@
         /* ════════════════════════════════════════
            CONFIG
         ════════════════════════════════════════ */
-        const SECRET_KEY = "HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ";
-        const APP_URL    = "https://script.google.com/macros/s/AKfycbx9d3phO50H0_8Swv1NlZ7wCesSGNxcERac2ZXc2htztv1krW4njkFMFOQIsvEQBDnZ/exec";
+        // ═══ PER-USER MACRO DEPLOYMENT LINKS ═══
+        // Each operator's OTP code is bound to THEIR OWN secret and THEIR OWN link.
+        // A code that validates for one account will never open another account's URL.
+        const USER_ACCOUNTS = [
+            { name: "Emilio Thuku",     secret: "HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ", url: "https://script.google.com/macros/s/AKfycbx6YHYrRG2n3Aa7-3Rf-fAevfLJyyw66QGUrT4Oz6cpxu4yUf6-bhvOuNBFkiORpDRzEQ/exec" },
+            { name: "Haron Kariuki",    secret: "ELOJF2HQVEJP3AMBD554QY4O6N4JCTXE",   url: "https://script.google.com/macros/s/AKfycbyqnNSV5fNSVVcKzN3wm4xyQlDLRHmlFXartV5h2Jt5QqaTd36Febb4YJBYkgr0v-qtow/exec" },
+            { name: "Prudence Wanjiru", secret: "HWRJMEKL7FVYNBXOKQA4TEGVH67J4DWL",   url: "https://script.google.com/macros/s/AKfycbzO5OL99sbEvZNTdQUy2sh1JjKRuD3lSrOiWUt532h0kbVIzJ6gF2yb9B9e9VTq6Rt2/exec" },
+            { name: "Shwari Admin",     secret: "XTJ5KSKLMDCWKYGW3FOXJC4J3ZVD2JG5",   url: "https://script.google.com/macros/s/AKfycbxE6SiwG_igGaF9MKzKUreuohc6nSjNXxHd5EefDh57HXISj95gB2wJ_p2GoHKX376udQ/exec" }
+        ];
+        let MATCHED_USER = null;
 
         /* ════════════════════════════════════════
            ELEMENTS
@@ -772,22 +780,23 @@
         ════════════════════════════════════════ */
         function verifyCode(code) {
             try {
-                const totp = new OTPAuth.TOTP({
-                    issuer:    "ShwariPayroll",
-                    label:     "Shwari:Finance",
-                    algorithm: "SHA1",
-                    digits:    6,
-                    period:    30,
-                    secret:    OTPAuth.Secret.fromBase32(SECRET_KEY)
-                });
+                for (const account of USER_ACCOUNTS) {
+                    const totp = new OTPAuth.TOTP({
+                        issuer:    "ShwariPayroll",
+                        label:     "Shwari:" + account.name,
+                        algorithm: "SHA1",
+                        digits:    6,
+                        period:    30,
+                        secret:    OTPAuth.Secret.fromBase32(account.secret)
+                    });
 
-                const delta = totp.validate({ token: code, window: 2 });
-
-                if (delta !== null) {
-                    onAuthSuccess();
-                } else {
-                    onAuthFailure("Incorrect code. Check your authenticator app.");
+                    if (totp.validate({ token: code, window: 2 }) !== null) {
+                        MATCHED_USER = account;
+                        onAuthSuccess();
+                        return;
+                    }
                 }
+                onAuthFailure("Incorrect code. Check your authenticator app.");
             } catch (err) {
                 onAuthFailure("Verification error. Please try again.");
             }
@@ -840,15 +849,16 @@
         }
 
         function completeLaunch() {
-            // Preload iframe while fading loader
-            appIframe.src = APP_URL;
+            // Preload iframe while fading loader — always the matched operator's OWN link, with identity passed
+            // along so the app can welcome them by name and skip straight to a PIN prompt. Never another operator's link.
+            appIframe.src = MATCHED_USER ? (MATCHED_USER.url + (MATCHED_USER.url.indexOf('?') > -1 ? '&' : '?') + 'user=' + encodeURIComponent(MATCHED_USER.name)) : "";
 
             setTimeout(() => {
                 loaderScreen.style.opacity = '0';
                 setTimeout(() => {
                     loaderScreen.style.display = 'none';
                     appWrapper.classList.add('loaded');
-                    showToast("Access granted. Welcome.", "success");
+                    showToast("Access granted. Welcome, " + (MATCHED_USER ? MATCHED_USER.name.split(' ')[0] : '') + ".", "success");
                 }, 350);
             }, 600);
         }
